@@ -15,8 +15,6 @@ setup(
     url='https://github.com/nevmerzhitsky/python-simple-json-logging',
     download_url='https://github.com/nevmerzhitsky/python-simple-json-logging/archive/v1.0.0.tar.gz',
     description='Library for structured logging via JSON document',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
     install_requires=install_requires,
     keywords=['logging', 'json'],
     classifiers=[
