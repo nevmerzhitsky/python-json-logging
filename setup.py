@@ -1,10 +1,5 @@
 from setuptools import find_packages, setup
 
-install_requires = ['pytest>=3.7.0']
-
-with open('README.md', 'r') as fp:
-    long_description = fp.read()
-
 setup(
     name='simple-json-logging',
     packages=find_packages(),
@@ -15,7 +10,9 @@ setup(
     url='https://github.com/nevmerzhitsky/python-simple-json-logging',
     download_url='https://github.com/nevmerzhitsky/python-simple-json-logging/archive/v1.0.0.tar.gz',
     description='Library for structured logging via JSON document',
-    install_requires=install_requires,
+    install_requires=[
+        'pytest>=3.7.0'
+    ],
     keywords=['logging', 'json'],
     classifiers=[
         'Development Status :: 4 - Beta',
