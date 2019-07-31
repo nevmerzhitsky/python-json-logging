@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='simple-json-logging',
-    version='1.0.4',
+    version='1.0.5',
     license='MIT',
     author='Sergey Nevmerzhitsky',
     author_email='sergey.nevmerzhitsky@gmail.com',
