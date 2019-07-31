@@ -13,6 +13,7 @@ setup(
     author='Sergey Nevmerzhitsky',
     author_email='sergey.nevmerzhitsky@gmail.com',
     url='https://github.com/nevmerzhitsky/python-json-logging',
+    download_url='https://github.com/nevmerzhitsky/python-json-logging/archive/v1.0.0.tar.gz',
     description='Library for structured logging via JSON document',
     long_description=long_description,
     long_description_content_type='text/markdown',
