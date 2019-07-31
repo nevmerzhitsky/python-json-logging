@@ -5,7 +5,7 @@
 Simple script for starting:
 
 ```python
-from json_logging import init_json_logger
+from simple_json_logging import init_json_logger
 
 logger = init_json_logger('my_json_logger')
 
@@ -32,7 +32,7 @@ This script will output:
 Another one with a custom formatter:
 
 ```python
-from json_logging import init_json_logger, JsonFormatter
+from simple_json_logging import init_json_logger, JsonFormatter
 
 formatter = JsonFormatter(json_dumps_args={'sort_keys': True, 'indent': 2})
 logger = init_json_logger('my_json_logger', formatter=formatter)
