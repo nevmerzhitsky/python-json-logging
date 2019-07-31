@@ -14,9 +14,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/nevmerzhitsky/python-simple-json-logging',
     keywords=['logging', 'json'],
-    install_requires=[
-        'pytest>=3.7.0'
-    ],
+    python_requires='~=3.7',
     packages=setuptools.find_packages(),
     classifiers=[
         'Development Status :: 4 - Beta',
