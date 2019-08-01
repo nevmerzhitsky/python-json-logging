@@ -34,39 +34,38 @@ class JsonFormatter(logging.Formatter):
         fmt=None,
         datefmt=None,
         style='%',
-        drop_fields: Optional[Set[str]] = None,
+        skip_fields_calculation: Optional[Set[str]] = None,
+        drop_fields_from_json: Optional[Set[str]] = None,
         simplify_exception_text: bool = True,
         json_dumps_args: Optional[Dict] = None,
     ):
         super().__init__(fmt, datefmt, style)
-        self._drop_fields = drop_fields if drop_fields else set()
+        self._skip_fields_calculation = set(skip_fields_calculation) if skip_fields_calculation \
+            else set()
+        self._drop_fields_from_json = set(drop_fields_from_json) if drop_fields_from_json else set()
         self._simplify_exception_text = bool(simplify_exception_text)
         self._json_dumps_args = json_dumps_args if json_dumps_args else {}
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord):
         record.message = record.getMessage()
         if self.usesTime():
             record.asctime = self.formatTime(record, self.datefmt)
-        if record.exc_info and 'exc_text' not in self._drop_fields:
-            # Cache the traceback text to avoid converting it multiple times
-            # (it's constant anyway)
-            if not record.exc_text:
+        if record.exc_info:
+            record.exceptionClass = record.exc_info[0].__name__
+            record.exceptionMessage = str(record.exc_info[1])
+            # Cache the traceback text to avoid converting it multiple times (it's constant anyway)
+            if not record.exc_text and 'exc_text' not in self._skip_fields_calculation:
                 record.exc_text = self.formatException(record.exc_info)
+        if 'messageFormatted' not in self._skip_fields_calculation:
+            record.messageFormatted = self.formatMessage(record)
 
         data = record.__dict__
-
-        if 'messageFormatted' not in self._drop_fields:
-            data['messageFormatted'] = self.formatMessage(record)
-
-        if record.exc_info:
-            data['exceptionClass'] = record.exc_info[0].__name__
-            data['exceptionMessage'] = str(record.exc_info[1])
 
         del data['msg'], data['args']
         # We can't serialize exc_info to JSON be default thus drop it.
         del data['exc_info']
 
-        for field in self._drop_fields:
+        for field in self._drop_fields_from_json:
             if field in data:
                 del data[field]
 
@@ -92,12 +91,15 @@ def init_json_logger(
     formatter: Optional[JsonFormatter] = None
 ) -> logging.Logger:
     if not formatter:
-        drop_fields = set()
+        skip_fields = set()
         if drop_formatted_message:
-            drop_fields.add('messageFormatted')
+            skip_fields.add('messageFormatted')
         if drop_old_exception_text:
-            drop_fields.add('exc_text')
-        formatter = JsonFormatter(drop_fields=drop_fields)
+            skip_fields.add('exc_text')
+        formatter = JsonFormatter(
+            skip_fields_calculation=skip_fields,
+            drop_fields_from_json=skip_fields
+        )
 
     result = init_flexible_logger(name)
     handler = logging.StreamHandler(stream)

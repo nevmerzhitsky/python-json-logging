@@ -32,7 +32,7 @@ This script will output:
 Another one with a custom formatter:
 
 ```python
-from simple_json_logging import init_json_logger, JsonFormatter
+from simple_json_logging import JsonFormatter, init_json_logger
 
 formatter = JsonFormatter(json_dumps_args={'sort_keys': True, 'indent': 2})
 logger = init_json_logger('my_json_logger', formatter=formatter)
