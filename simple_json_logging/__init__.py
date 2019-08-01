@@ -77,7 +77,7 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(data, **self._json_dumps_args)
 
 
-def init_flexible_logger(name: str) -> logging.LoggerAdapter:
+def init_flexible_logger(name: str) -> LoggerWithFlexibleArgsAdapter:
     result = logging.getLogger(name)
     # Using logging.LoggerAdapter instead of implementing own Logger subclass solve an issue with
     # multi-threads programs in case of temporary changing of logging.getLoggerClass() to hack
@@ -91,7 +91,7 @@ def init_json_logger(
     drop_old_exception_text: bool = True,
     stream=sys.stdout,
     formatter: Optional[JsonFormatter] = None
-) -> logging.Logger:
+) -> LoggerWithFlexibleArgsAdapter:
     if not formatter:
         skip_fields = set()
         if drop_formatted_message:
