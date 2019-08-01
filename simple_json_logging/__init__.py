@@ -51,21 +51,23 @@ class JsonFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord):
         record.message = record.getMessage()
-        if self.usesTime():
-            record.asctime = self.formatTime(record, self.datefmt)
+
+        if 'messageFormatted' not in self._skip_fields_calculation:
+            if self.usesTime():
+                record.asctime = self.formatTime(record, self.datefmt)
+            record.messageFormatted = self.formatMessage(record)
+
         if record.exc_info:
             record.exceptionClass = record.exc_info[0].__name__
             record.exceptionMessage = str(record.exc_info[1])
             # Cache the traceback text to avoid converting it multiple times (it's constant anyway)
             if not record.exc_text and 'exc_text' not in self._skip_fields_calculation:
                 record.exc_text = self.formatException(record.exc_info)
-        if 'messageFormatted' not in self._skip_fields_calculation:
-            record.messageFormatted = self.formatMessage(record)
 
         data = record.__dict__
 
         del data['msg'], data['args']
-        # We can't serialize exc_info to JSON be default thus drop it.
+        # We can't serialize exc_info to JSON by default thus drop it.
         del data['exc_info']
 
         for field in self._drop_fields_from_json:
