@@ -69,17 +69,17 @@ class JsonFormatter(logging.Formatter):
             if not record.exc_text and 'exc_text' not in self._skip_fields_calculation:
                 record.exc_text = self.formatException(record.exc_info)
 
-        data = record.__dict__
+        json_data = record.__dict__
 
-        del data['msg'], data['args']
+        del json_data['msg'], json_data['args']
         # We can't serialize exc_info to JSON by default thus drop it.
-        del data['exc_info']
+        del json_data['exc_info']
 
         for field in self._drop_fields_from_json:
-            if field in data:
-                del data[field]
+            if field in json_data:
+                del json_data[field]
 
-        return json.dumps(data, **self._json_dumps_args)
+        return json.dumps(json_data, **self._json_dumps_args)
 
 
 def init_flexible_logger(name: str) -> LoggerWithFlexibleArgsAdapter:
