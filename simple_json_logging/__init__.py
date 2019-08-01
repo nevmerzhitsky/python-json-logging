@@ -14,7 +14,7 @@ class LoggerWithFlexibleArgsAdapter(logging.LoggerAdapter):
     """
 
     def process(self, msg, kwargs):
-        new_kwargs = {'extra': {'data': kwargs}}
+        new_kwargs = {'extra': {**self.extra, **{'data': kwargs}}}
 
         # Save any real argument of Logger._log() except 'extra'
         _log_method_args = {'level', 'msg', 'args', 'exc_info', 'stack_info'}
