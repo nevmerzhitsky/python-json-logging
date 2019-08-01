@@ -5,6 +5,14 @@ from typing import Dict, Optional, Set
 
 
 class LoggerWithFlexibleArgsAdapter(logging.LoggerAdapter):
+    """
+        This class just add any keyword argument of the standard logging functions to 'data' key
+        of the extra argument of LogRecord constructor. This is very useful with structured logging
+        because extra argument will be passed as is to a formatter. In conjunction with
+        JsonFormatter this will result that the keyword arguments will appears in a JSON document
+        in "data" key.
+    """
+
     def process(self, msg, kwargs):
         new_kwargs = {'extra': {'data': kwargs}}
 
