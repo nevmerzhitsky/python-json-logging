@@ -50,9 +50,14 @@ class JsonFormatter(logging.Formatter):
         self._json_dumps_args = json_dumps_args if json_dumps_args else {}
 
     def format(self, record: logging.LogRecord):
-        record.message = record.getMessage()
+        if isinstance(record.msg, dict):
+            if hasattr(record, 'data'):
+                record.data.update(record.msg)
+            record.message = None
+        else:
+            record.message = record.getMessage()
 
-        if 'messageFormatted' not in self._skip_fields_calculation:
+        if record.message is not None and 'messageFormatted' not in self._skip_fields_calculation:
             if self.usesTime():
                 record.asctime = self.formatTime(record, self.datefmt)
             record.messageFormatted = self.formatMessage(record)
