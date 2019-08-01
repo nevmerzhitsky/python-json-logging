@@ -4,28 +4,23 @@ import sys
 from typing import Dict, Optional, Set
 
 
-class LoggerWithFlexibleArgs(logging.Logger):
-    """
-        This class just add content of **kwargs to 'data' key of the extra argument of LogRecord.
-        This give ability to use any keyword argument in standard logging functions. This is very
-        useful in structured logging goal because extra argument will be passed as is to
-        a formatter. In conjunction with JsonFormatter this will result that the keyword arguments
-        will appears in a JSON document in "data" key.
-    """
+class LoggerWithFlexibleArgsAdapter(logging.LoggerAdapter):
+    def process(self, msg, kwargs):
+        new_kwargs = {'extra': {'data': kwargs}}
 
-    def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, **kwargs):
-        if extra is None:
-            extra = {}
-        extra = {**extra, **{'data': kwargs}}
+        # Save any real argument of Logger._log() except 'extra'
+        _log_method_args = {'level', 'msg', 'args', 'exc_info', 'stack_info'}
+        for arg in _log_method_args:
+            if arg in kwargs:
+                new_kwargs[arg] = kwargs[arg]
+                del kwargs[arg]
 
-        return super()._log(
-            level,
-            msg,
-            args,
-            exc_info=exc_info,
-            extra=extra,
-            stack_info=stack_info
-        )
+        return msg, new_kwargs
+
+    # Unfortunately Python community still don't use Decorator patter for LoggerAdapter class
+    # and I should implement this method by hand
+    def addHandler(self, hdlr):
+        return self.logger.addHandler(hdlr)
 
 
 class JsonFormatter(logging.Formatter):
@@ -72,15 +67,12 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(data, **self._json_dumps_args)
 
 
-def init_flexible_logger(name: str) -> logging.Logger:
-    logger_class_backup = logging.getLoggerClass()
-    try:
-        # Unfortunately we can't acquire the lock from logging module here thus this temporary
-        # change will affect any parallel loggers creation.
-        logging.setLoggerClass(LoggerWithFlexibleArgs)
-        return logging.getLogger(name)
-    finally:
-        logging.setLoggerClass(logger_class_backup)
+def init_flexible_logger(name: str) -> logging.LoggerAdapter:
+    result = logging.getLogger(name)
+    # Using logging.LoggerAdapter instead of implementing own Logger subclass solve an issue with
+    # multi-threads programs in case of temporary changing of logging.getLoggerClass() to hack
+    # the logging.getLogger(name) call
+    return LoggerWithFlexibleArgsAdapter(result, {})
 
 
 def init_json_logger(
